@@ -1,17 +1,21 @@
 ## Token_go
 Simple & fast Encoder/Decoder for tiktoken vocabulary.
-Implemented from scratch(no regex library). Tokenizer is in vocab.go which has ~110 lines of code.
+Implemented from scratch(no regex library). Tokenizer is in vocab.go which has ~120 lines of code.
 
 
 
 ## Performance
 p50k_base.tiktoken:
-- Encoder: 4.458M toks/sec, 18.451 MB/sec
+- Encoder: 4.625M toks/sec, 19.143 MB/sec
 - Decoder: 37.817M toks/sec, 156.516 MB/sec
 
 cl100k_base.tiktoken:
-- Encoded 3.979M toks/sec, 16.875 MB/sec
+- Encoded 3.949M toks/sec, 16.748 MB/sec
 - Decoded 35.825M toks/sec, 151.952 MB/sec
+
+Server(p50k_base)
+- 8x clients encoding("Hi there!"+index) in loop 100K times(800K total requests) in 26.7sec.
+
 
 *note: put megabytes of text into data.txt.*
 
@@ -36,7 +40,7 @@ client := NewClient("localhost:8090", "p50k_base")
 toks, err := client.Encode([]byte("Hi there!"))
 fmt.Println(toks)
 
-text, err := client.Decode([]int{13347, 1070, 0})
+text, err := client.Decode([]int{17250, 612, 0})
 fmt.Println(text)
 </code></pre>
 
