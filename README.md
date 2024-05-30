@@ -29,12 +29,14 @@ fmt.Println(str)
 </code></pre>
 
 Client/Server:
-<pre><code>go NewServer()   //run server in extra thread
+<pre><code>go NewServer("8090")   //run server in extra thread
 
-toks, err := Client_encode([]byte("Hi there!"), "p50k_base")
+client := NewClient("localhost:8090", "p50k_base")
+
+toks, err := client.Encode([]byte("Hi there!"))
 fmt.Println(toks)
 
-text, err := Client_decode([]int{13347, 1070, 0}, "p50k_base")
+text, err := client.Decode([]int{13347, 1070, 0})
 fmt.Println(text)
 </code></pre>
 

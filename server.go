@@ -113,11 +113,11 @@ func (s *Server) Handle(w http.ResponseWriter, r *http.Request) {
 	//http.ServeFile(w, r, "index.html")
 }
 
-func NewServer() (*Server, error) {
+func NewServer(port string) (*Server, error) {
 	server := &Server{}
 
 	http.HandleFunc("/", server.Handle)
-	err := http.ListenAndServe(":8090", nil)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -125,10 +125,29 @@ func NewServer() (*Server, error) {
 	return server, nil
 }
 
-func Client_encode(str []byte, vocab string) ([]int, error) {
+type Client struct {
+	server_addr string
+	vocab       string
+
+	encode_addr string
+	decode_addr string
+}
+
+// server_addr = "localhost:8090"
+// vocab = "p50k_base"
+func NewClient(server_addr string, vocab string) *Client {
+	cl := &Client{server_addr: server_addr, vocab: vocab}
+
+	cl.encode_addr = "http://" + server_addr + "/encode/" + vocab
+	cl.decode_addr = "http://" + server_addr + "/decode/" + vocab
+
+	return cl
+}
+
+func (cl *Client) Encode(str []byte) ([]int, error) {
 
 	client := http.DefaultClient
-	res, err := client.Post("http://localhost:8090/encode/"+vocab, "text/plain", bytes.NewBuffer(str))
+	res, err := client.Post(cl.encode_addr, "text/plain", bytes.NewBuffer(str))
 	if err != nil {
 		return nil, err
 	}
@@ -144,12 +163,12 @@ func Client_encode(str []byte, vocab string) ([]int, error) {
 	return ids, nil //ok
 }
 
-func Client_decode(ids []int, vocab string) ([]byte, error) {
+func (cl *Client) Decode(ids []int) ([]byte, error) {
 
 	wids := ulit_integers_to_bytes(ids)
 
 	client := http.DefaultClient
-	res, err := client.Post("http://localhost:8090/decode/"+vocab, "text/plain", bytes.NewBuffer(wids))
+	res, err := client.Post(cl.decode_addr, "text/plain", bytes.NewBuffer(wids))
 	if err != nil {
 		return nil, err
 	}
@@ -179,21 +198,22 @@ func ulit_bytes_to_integers(data []byte) []int {
 func TestServer() {
 
 	//run server
-	go NewServer()
+	go NewServer("8090")
 
-	//constants
-	vocab := "p50k_base"
+	//create client
+	client := NewClient("localhost:8090", "p50k_base")
+
 	str := "Hi there!"
 
 	//decode
-	ids, err := Client_encode([]byte(str), vocab)
+	ids, err := client.Encode([]byte(str))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	//encode
-	str2, err := Client_decode(ids, vocab)
+	str2, err := client.Decode(ids)
 	if err != nil {
 		fmt.Println(err)
 		return
