@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Server struct {
@@ -193,28 +194,52 @@ func ulit_bytes_to_integers(data []byte) []int {
 func TestServer() {
 	//run server
 	go NewServer("8090")
+	time.Sleep(100 * time.Millisecond) //let the thread & server start
 
 	//create client
 	client := NewClient("localhost:8090", "p50k_base")
 
+	// encode
 	str := "Hi there!"
-
-	//decode
 	ids, err := client.Encode([]byte(str))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	//encode
+	// decode
 	str2, err := client.Decode(ids)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-
-	//print results
 	fmt.Println(str)
 	fmt.Println(ids)
 	fmt.Println(string(str2))
+
+	//multi-clients
+	/*var wg sync.WaitGroup
+	st := ulit_getTime()
+	for th := 0; th < 8; th++ {
+		wg.Add(1)
+		go func() {
+			N := 10000 //10K
+			for i := 0; i < N; i++ {
+				_, err := client.Encode([]byte(str + strconv.Itoa(i)))
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				//_, err = client.Decode(ids)
+				//if err != nil {
+				//	fmt.Println(err)
+				//	return
+				//}
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	dt := float64(time.Now().UnixMicro()-st) / 1000000
+	fmt.Printf("%.3f\n", dt)*/
 }
