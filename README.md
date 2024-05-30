@@ -31,10 +31,10 @@ fmt.Println(str)
 Client/Server:
 <pre><code>go NewServer()   //run server in extra thread
 
-toks, err := Client_encode([]byte("Hi there!"), "cl100k_base")
+toks, err := Client_encode([]byte("Hi there!"), "p50k_base")
 fmt.Println(toks)
 
-text, err := Client_decode([]int{13347, 1070, 0}, "cl100k_base")
+text, err := Client_decode([]int{13347, 1070, 0}, "p50k_base")
 fmt.Println(text)
 </code></pre>
 
