@@ -29,8 +29,6 @@ import (
 type Server struct {
 	mu     sync.Mutex
 	vocabs []*Vocab
-
-	//collect stats ...
 }
 
 func (s *Server) findVocab(path string) *Vocab {
@@ -109,8 +107,6 @@ func (s *Server) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Error(w, r.URL.Path+" parsing failed", http.StatusBadRequest)
-
-	//http.ServeFile(w, r, "index.html")
 }
 
 func NewServer(port string) (*Server, error) {
@@ -133,8 +129,7 @@ type Client struct {
 	decode_addr string
 }
 
-// server_addr = "localhost:8090"
-// vocab = "p50k_base"
+// server_addr("localhost:8090"), vocab("p50k_base")
 func NewClient(server_addr string, vocab string) *Client {
 	cl := &Client{server_addr: server_addr, vocab: vocab}
 
@@ -196,7 +191,6 @@ func ulit_bytes_to_integers(data []byte) []int {
 }
 
 func TestServer() {
-
 	//run server
 	go NewServer("8090")
 

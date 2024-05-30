@@ -24,25 +24,16 @@ import (
 )
 
 func main() {
-	//Profiling
-	//Os_StartProfile("cpu.prof")	//run "sh perf" to show result
-	//defer Os_StopProfile()
-
 	TestServer() //run HTTP server and make request to encode/decode
 
-	vb, err := NewVocab("p50k_base.tiktoken")
-	//vb, err := NewVocab("cl100k_base.tiktoken")
+	//load and prepare vocabulary struct
+	vb, err := NewVocab("p50k_base.tiktoken") //p50k_base.tiktoken, cl100k_base.tiktoken
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	//Direct encode & decode test
-	//ids := vb.Encode("kjl")
-	//fmt.Println(ids)
-	//str := vb.Decode(ids)
-	//fmt.Println(str)
-
+	//read data file
 	fl, err := os.ReadFile("data.txt")
 	if err != nil {
 		fmt.Println(err)
@@ -59,14 +50,11 @@ func main() {
 	fl2 := vb.Decode(tks)
 	ulit_printStat("Decoded", st, len(tks), len(fl))
 
-	//compare decoded with original file
+	//compare decoded data with original file
 	if !bytes.Equal(fl, []byte(fl2)) {
 		fmt.Println("Error")
 		os.Exit(-1)
 	}
-
-	//TODO: test.txt ...
-	//TODO: multi-threading ...
 }
 
 func ulit_getTime() int64 {
@@ -77,19 +65,3 @@ func ulit_printStat(tp string, startTime_microsec int64, num_tokens, file_size i
 
 	fmt.Printf("%s %d toks: %.3fM toks/sec, %.3f MB/sec\n", tp, num_tokens, float64(num_tokens)/dt/1000000, float64(file_size)/dt/(1000000))
 }
-
-/*
-//Load .parquet file
-type RowType struct{ Text string }
-rows, err := parquet.ReadFile[RowType]("000_00000.parquet")
-if err != nil {
-	fmt.Println(err)
-	return
-}
-vtokens := make([][]int, len(rows))
-for _, r := range rows {
-	tks := vb.Encode(r.Text)
-	vtokens = append(vtokens, tks)
-}
-fmt.Println(len(vtokens))
-*/
