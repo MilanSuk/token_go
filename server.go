@@ -137,7 +137,7 @@ func Client_encode(str []byte, vocab string) ([]int, error) {
 		return nil, err
 	}
 	if len(body)%4 != 0 {
-		return nil, fmt.Errorf("Invalid size of return array")
+		return nil, fmt.Errorf("invalid size of return array")
 	}
 
 	ids := ulit_bytes_to_integers(body)
@@ -182,7 +182,7 @@ func TestServer() {
 	go NewServer()
 
 	//constants
-	vocab := "cl100k_base"
+	vocab := "p50k_base"
 	str := "Hi there!"
 
 	//decode
