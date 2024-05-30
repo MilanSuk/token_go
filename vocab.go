@@ -19,7 +19,6 @@ package main
 import (
 	"bytes"
 	"encoding/base64"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -127,41 +126,40 @@ func (vb *Vocab) Decode(ids []int) string {
 	return buffer.String()
 }
 
-func (vb *Vocab) Encode(str string) []int {
-	ids := make([]int, 0, len(str)) //pre-alloc
+func (node *VocabNode) encode(runes []int, rune_pos int, next_rune_pos *int, ids *[]int) bool {
+	if rune_pos == len(runes) {
+		return false
+	}
 
-	runes := getRunes(str)
+	next, found := node.chs[runes[rune_pos]]
+	if found {
+		found = next.encode(runes, rune_pos+1, next_rune_pos, ids)
+		if !found {
 
-	items := &vb.items
-	for i := 0; i < len(runes); i++ {
-		next_item, found := items.chs[runes[i]]
-		if found {
-			items = next_item
-		} else {
-
-			//Go back in tree.
-			//This is for situation when there is "go" and "good" in vocabulary and it search for "goo ".
-			//Tree is "g" -> "go" -> "goo" -> "good". "goo" tree leaf has 'id'=-1(it's NOT in vocabulary), others are >= 0.
-			for items.id < 0 && items.parent != nil {
-				items = items.parent
-				i--
+			//If next.id < 0 return to parent node
+			//This is for situation when there is "go" and "good" in vocabulary and it searches for "goo ".
+			//Tree is "g" -> "go" -> "goo" -> "good". "goo" node has 'id'=-1(it's NOT in vocabulary), other nodes are 'id'>= 0(in vocabulary).
+			if next.id >= 0 {
+				*next_rune_pos = rune_pos + 1
+				*ids = append(*ids, next.id)
+				return true
 			}
-
-			if items.id >= 0 {
-				i--
-			} else {
-				fmt.Println("warning: tree ID not exist")
-			}
-
-			ids = append(ids, items.id) //add
-
-			items = &vb.items //reset
 		}
 	}
 
-	//add last
-	if items != &vb.items {
-		ids = append(ids, items.id) //add
+	return found
+}
+
+func (vb *Vocab) Encode(str string) []int {
+	ids := make([]int, 0, len(str)+1) //pre-alloc
+	if str == "" {
+		return ids
+	}
+
+	runes := getRunes(str)
+	rune_pos := 0
+	for rune_pos < len(runes) {
+		vb.items.encode(runes, rune_pos, &rune_pos, &ids)
 	}
 
 	return ids
