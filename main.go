@@ -37,7 +37,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	//direct en/decode  test
+	//Direct encode & decode test
 	//ids := vb.Encode("kjl")
 	//fmt.Println(ids)
 	//str := vb.Decode(ids)
