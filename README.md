@@ -23,7 +23,7 @@ Server(p50k_base)
 
 ## Examples
 Encode/Decode:
-<pre><code>vb, err := NewVocab("p50k_base.tiktoken")
+<pre><code>vb, err := NewVocab("p50k_base.tiktoken", true)
 
 toks := vb.Encode("Hi there!")
 fmt.Println(toks)
@@ -33,7 +33,7 @@ fmt.Println(str)
 </code></pre>
 
 Client/Server:
-<pre><code>go NewServer("8090")   //run server in extra thread
+<pre><code>go NewServer("8090", true)   //run server in extra thread
 
 client := NewClient("localhost:8090", "p50k_base")
 
