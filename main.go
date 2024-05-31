@@ -27,7 +27,7 @@ func main() {
 	TestServer() //run HTTP server and make request to encode/decode
 
 	//load and prepare vocabulary struct
-	vb, err := NewVocab("p50k_base.tiktoken") //p50k_base.tiktoken, cl100k_base.tiktoken
+	vb, err := NewVocab("p50k_base", true) //p50k_base, cl100k_base, etc.
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

@@ -49,7 +49,7 @@ func (node *VocabNode) Add(str []int, id int) {
 }
 
 type Vocab struct {
-	path  string
+	name  string
 	words map[string]int //word-id pair
 	ids   []string       //word[id]
 	items VocabNode      //unicode(rune) tree
@@ -63,11 +63,22 @@ func getRunes(str string) []int {
 	return ids //list of unicodes
 }
 
-func NewVocab(path string) (*Vocab, error) {
-	vb := &Vocab{path: path}
+func Vocab_getPath(name string) string {
+	return name + ".tiktoken"
+}
+
+func NewVocab(name string, enableDownload bool) (*Vocab, error) {
+	vb := &Vocab{name: name}
+
+	if enableDownload {
+		err := VocabAddr_findOrDownload(name)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	//open file
-	fl, err := os.ReadFile(path)
+	fl, err := os.ReadFile(Vocab_getPath(name))
 	if err != nil {
 		return nil, err
 	}

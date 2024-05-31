@@ -28,28 +28,29 @@ import (
 )
 
 type Server struct {
-	mu     sync.Mutex
-	vocabs []*Vocab
+	mu                  sync.Mutex
+	vocabs              []*Vocab
+	enableVocabDownload bool
 }
 
-func (s *Server) findVocab(path string) *Vocab {
+func (s *Server) findVocab(name string) *Vocab {
 	for _, vb := range s.vocabs {
-		if vb.path == path {
+		if vb.name == name {
 			return vb
 		}
 	}
 	return nil
 }
 
-func (s *Server) GetVocab(path string) *Vocab {
+func (s *Server) GetVocab(name string) *Vocab {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	vb := s.findVocab(path)
+	vb := s.findVocab(name)
 	if vb == nil {
 		//add
 		var err error
-		vb, err = NewVocab(path)
+		vb, err = NewVocab(name, s.enableVocabDownload)
 		if err == nil {
 			s.vocabs = append(s.vocabs, vb)
 		}
@@ -64,7 +65,7 @@ func (s *Server) Handle(w http.ResponseWriter, r *http.Request) {
 	//Encoder
 	vocabName, encode = strings.CutPrefix(r.URL.Path, "/encode/")
 	if encode {
-		vocab := s.GetVocab(vocabName + ".tiktoken")
+		vocab := s.GetVocab(vocabName)
 		if vocab == nil {
 			http.Error(w, vocabName+" vocab not found", http.StatusBadRequest)
 			return
@@ -87,7 +88,7 @@ func (s *Server) Handle(w http.ResponseWriter, r *http.Request) {
 	//Decoder
 	vocabName, decode = strings.CutPrefix(r.URL.Path, "/decode/")
 	if decode {
-		vocab := s.GetVocab(vocabName + ".tiktoken")
+		vocab := s.GetVocab(vocabName)
 		if vocab == nil {
 			http.Error(w, vocabName+" vocab not found", http.StatusBadRequest)
 			return
@@ -110,8 +111,8 @@ func (s *Server) Handle(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, r.URL.Path+" parsing failed", http.StatusBadRequest)
 }
 
-func NewServer(port string) (*Server, error) {
-	server := &Server{}
+func NewServer(port string, enableVocabDownload bool) (*Server, error) {
+	server := &Server{enableVocabDownload: enableVocabDownload}
 
 	http.HandleFunc("/", server.Handle)
 	err := http.ListenAndServe(":"+port, nil)
@@ -193,7 +194,7 @@ func ulit_bytes_to_integers(data []byte) []int {
 
 func TestServer() {
 	//run server
-	go NewServer("8090")
+	go NewServer("8090", true)
 	time.Sleep(100 * time.Millisecond) //let the thread & server start
 
 	//create client
