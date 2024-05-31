@@ -40,6 +40,10 @@ func main() {
 		return
 	}
 
+	if len(fl) < 100*1024 { //10KB
+		fmt.Println("Warning: File is small. Add more text!")
+	}
+
 	//encode
 	st := ulit_getTime()
 	tks := vb.Encode(string(fl))
