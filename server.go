@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -214,18 +215,18 @@ func TestServer() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(str)
-	fmt.Println(ids)
-	fmt.Println(string(str2))
+	fmt.Println("Encode:", str, "->", ids)
+	fmt.Println("Decode:", ids, "->", string(str2))
 
 	//multi-clients
-	/*var wg sync.WaitGroup
+	var wg sync.WaitGroup
 	st := ulit_getTime()
-	for th := 0; th < 8; th++ {
+	N_thread := 8
+	N_thread_query := 1000
+	for th := 0; th < N_thread; th++ {
 		wg.Add(1)
 		go func() {
-			N := 10000 //10K
-			for i := 0; i < N; i++ {
+			for i := 0; i < N_thread_query; i++ {
 				_, err := client.Encode([]byte(str + strconv.Itoa(i)))
 				if err != nil {
 					fmt.Println(err)
@@ -242,5 +243,5 @@ func TestServer() {
 	}
 	wg.Wait()
 	dt := float64(time.Now().UnixMicro()-st) / 1000000
-	fmt.Printf("%.3f\n", dt)*/
+	fmt.Printf("Multi-client: %.3fsec total, %.0f toks/sec\n", dt, float64(N_thread*N_thread_query)/dt)
 }
