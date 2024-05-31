@@ -6,18 +6,16 @@ Implemented from scratch(no regex library). Tokenizer is in vocab.go which has ~
 
 ## Performance
 p50k_base.tiktoken:
-- Encoder: 4.625M toks/sec, 19.143 MB/sec
-- Decoder: 37.817M toks/sec, 156.516 MB/sec
+- Encoder: 4.625M toks/sec, 19.143 MB/sec, 1 thread
+- Decoder: 37.817M toks/sec, 156.516 MB/sec, 1 thread
 
 cl100k_base.tiktoken:
-- Encoded 3.949M toks/sec, 16.748 MB/sec
-- Decoded 35.825M toks/sec, 151.952 MB/sec
+- Encoded 3.949M toks/sec, 16.748 MB/sec, 1 thread
+- Decoded 35.825M toks/sec, 151.952 MB/sec, 1 thread
 
 Server(p50k_base)
-- 8x clients encoding("Hi there!"+index) in loop 100K times(800K total requests) in 26.7sec.
-
-
-*note: put megabytes of text into data.txt.*
+- 8x clients calls 100K times Encode("Hi there!" + index).
+- 800K total requests in 26.7sec => 30K req/sec.
 
 
 
